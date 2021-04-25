@@ -4,11 +4,15 @@ import { RouterConfig } from './router'
 
 export const routerConfig: RouterConfig = Object.create(null)
 
-export function init (config: RouterConfig) {
+export function init(config: RouterConfig) {
   config.router.mode = config.router.mode || 'hash'
   setHistoryMode(config.router.mode, config.router.basename)
   Object.assign(routerConfig, config)
   document.getElementById('app')?.remove()
+
+  // 添加taro节点到app节点
+  const appName = config.appName || ''
+  const root = document.getElementById(appName) || document.body
 
   const container = document.createElement('div')
   container.classList.add('taro-tabbar__container')
@@ -24,7 +28,8 @@ export function init (config: RouterConfig) {
   panel.appendChild(app)
   container.appendChild(panel)
 
-  document.body.appendChild(container)
+  // document.body.appendChild(container)
+  root.appendChild(container)
 
   initTabbar(config)
 }
