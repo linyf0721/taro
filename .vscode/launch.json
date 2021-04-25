@@ -9,13 +9,14 @@
     "request": "launch",
     "name": "CLI debug",
     "program": "${workspaceFolder}/packages/taro-cli/bin/taro",
-    // "cwd": "${project absolute path}",
-    // "args": [
-    //   "build",
-    //   "--type",
-    //   "weapp",
-    //   "--watch"
-    // ],
+    "cwd": "/Users/linyunfei/Documents/NgariHealth/移动中台/main/taro_wqd_test2/",
+    "args": [
+      // "taro",
+      "build",
+      "--type",
+      "h5",
+      "--watch"
+    ],
     "skipFiles": [
       "<node_internals>/**"
     ]
@@ -53,6 +54,13 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "disableOptimisticBPs": true
+    },
+    {
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "name": "route watch",
+      "cwd": "${workspaceFolder}/packages/taro-router",
     },
   ]
 }

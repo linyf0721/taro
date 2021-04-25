@@ -4,7 +4,7 @@ import { AppConfig } from '@tarojs/taro'
 import { join, dirname } from 'path'
 import { frameworkMeta } from './utils'
 
-function genResource (path: string, pages: Map<string, string>, loaderContext: webpack.loader.LoaderContext) {
+function genResource(path: string, pages: Map<string, string>, loaderContext: webpack.loader.LoaderContext) {
   const stringify = (s: string): string => stringifyRequest(loaderContext, s)
   return `
   Object.assign({
@@ -16,7 +16,8 @@ function genResource (path: string, pages: Map<string, string>, loaderContext: w
 `
 }
 
-export default function (this: webpack.loader.LoaderContext) {
+
+export default function(this: webpack.loader.LoaderContext) {
   const options = getOptions(this)
   const stringify = (s: string): string => stringifyRequest(this, s)
   const {
@@ -52,7 +53,9 @@ var tabbarSelectedIconPath = []
 })
 `
 
-  const code = `import { createRouter } from '@tarojs/taro'
+  const code = `
+import "./public-path";
+import { createRouter } from '@tarojs/taro'
 import component from ${stringify(join(dirname(this.resourcePath), options.filename))}
 import { ${creator}, window } from '@tarojs/runtime'
 import { defineCustomElements, applyPolyfills } from '@tarojs/components/loader'
@@ -79,8 +82,37 @@ config.routes = [
   ${config.pages?.map(path => genResource(path, pages, this)).join('')}
 ]
 ${execBeforeCreateWebApp || ''}
-var inst = ${creator}(component, ${frameworkArgs})
-createRouter(inst, config, ${importFrameworkName})
+
+let appName = config.appName
+let inst = null
+
+if (!window.__POWERED_BY_QIANKUN__) {
+  inst = ${creator}(component, ${frameworkArgs})
+  createRouter(inst, config, ${importFrameworkName})
+}
+
+// qiankun 启动
+export async function bootstrap() {
+  console.log("[" + appName + "]" + "微应用启动" );
+}
+
+// 子应用挂载
+export async function mount(props) {
+  console.log("[" + appName + "]" + "微应用挂载" );
+  inst = ${creator}(component, ${frameworkArgs})
+  createRouter(inst, config, ${importFrameworkName})
+}
+
+// 子应用卸载
+export async function unmount(props) {
+  console.log("[" + appName + "]" + "微应用卸载" );
+  // const { container } = props;
+  if(inst){
+
+  }
+  inst?inst.onUnMount():null;
+}
+
 `
 
   return code
