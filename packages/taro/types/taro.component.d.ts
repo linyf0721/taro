@@ -143,6 +143,8 @@ declare namespace Taro {
   interface AppInstance extends Show {
     mount(component: React.ComponentClass | Vue.ComponentOptions<Vue>, id: string, cb: () => void): void
     unmount(id: string, cb: () => void): void
+    onMount?(options?: string): void
+    onUnMount?(options?: string): void
   }
 
   type Target = Record<string, unknown> & { dataset: Record<string, unknown>; id: string }
