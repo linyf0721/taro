@@ -8,10 +8,15 @@ export function init(config: RouterConfig) {
   config.router.mode = config.router.mode || 'hash'
   setHistoryMode(config.router.mode, config.router.basename)
   Object.assign(routerConfig, config)
-  document.getElementById('app')?.remove()
+  // document.getElementById('app')?.remove()
 
   // 添加taro节点到app节点
   const appName = config.appName || ''
+
+  const appId = appName != '' ? 'app' + '_' + appName :'app';
+
+  document.getElementById(appId)?.remove()
+
   const root = document.getElementById(appName) || document.body
 
   const container = document.createElement('div')
@@ -22,7 +27,8 @@ export function init(config: RouterConfig) {
   panel.classList.add('taro-tabbar__panel')
 
   const app = document.createElement('div')
-  app.id = 'app'
+
+  app.id = appId
   app.classList.add('taro_router')
 
   panel.appendChild(app)

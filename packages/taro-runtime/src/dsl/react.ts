@@ -243,7 +243,10 @@ export function createReactApp (App: React.ComponentClass, react: typeof React, 
           ...options
         }
         // eslint-disable-next-line react/no-render-return-value
-        wrapper = ReactDOM.render(R.createElement(AppWrapper), document.getElementById('app'))
+        // wrapper = ReactDOM.render(R.createElement(AppWrapper), document.getElementById('app'))
+
+        this.onMount();
+
         const app = ref.current
 
         // For taroize
@@ -321,7 +324,11 @@ export function createReactApp (App: React.ComponentClass, react: typeof React, 
       enumerable: true,
       writable: true,
       value () {
-        wrapper = ReactDOM.render(R.createElement(AppWrapper), document.getElementById('app'))
+        const appName = config.appName
+
+        const appId = appName != null ? 'app' + '_' + appName :'app';
+
+        wrapper = ReactDOM.render(R.createElement(AppWrapper), document.getElementById(appId))
       }
     },
     // app卸载
@@ -330,7 +337,9 @@ export function createReactApp (App: React.ComponentClass, react: typeof React, 
       writable: true,
       value () {
         wrapper = null;
-        let nodeApp = document.getElementById('app');
+        const appName = config.appName
+        const appId = appName != null ? 'app' + '_' + appName :'app';
+        let nodeApp = document.getElementById(appId);
         ReactDOM.unmountComponentAtNode(nodeApp);
       }
     }
