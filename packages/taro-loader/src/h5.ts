@@ -86,7 +86,8 @@ ${execBeforeCreateWebApp || ''}
 let appName = config.appName
 let inst = null
 
-if (!window.__POWERED_BY_QIANKUN__) {
+// 非乾坤及母应用才渲染
+if (!window.__POWERED_BY_QIANKUN__ && !window.__QIANKUN_PARENT__ ) {
   inst = ${creator}(component, ${frameworkArgs})
   createRouter(inst, config, ${importFrameworkName})
 }
