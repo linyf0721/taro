@@ -16,7 +16,6 @@ function genResource(path: string, pages: Map<string, string>, loaderContext: we
 `
 }
 
-
 export default function(this: webpack.loader.LoaderContext) {
   const options = getOptions(this)
   const stringify = (s: string): string => stringifyRequest(this, s)
@@ -102,6 +101,8 @@ export async function mount(props) {
   console.log("[" + appName + "]" + "微应用挂载" );
   inst = ${creator}(component, ${frameworkArgs})
   createRouter(inst, config, ${importFrameworkName})
+  // 设置微应用属性
+  window.__microProps = props
 }
 
 // 子应用卸载
