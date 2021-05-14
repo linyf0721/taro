@@ -4,7 +4,7 @@ import { AppConfig } from '@tarojs/taro'
 import { join, dirname } from 'path'
 import { frameworkMeta } from './utils'
 
-function genResource (path: string, pages: Map<string, string>, loaderContext: webpack.loader.LoaderContext) {
+function genResource(path: string, pages: Map<string, string>, loaderContext: webpack.loader.LoaderContext) {
   const stringify = (s: string): string => stringifyRequest(loaderContext, s)
   return `
   Object.assign({
@@ -16,7 +16,7 @@ function genResource (path: string, pages: Map<string, string>, loaderContext: w
 `
 }
 
-export default function (this: webpack.loader.LoaderContext) {
+export default function(this: webpack.loader.LoaderContext) {
   const options = getOptions(this)
   const stringify = (s: string): string => stringifyRequest(this, s)
   const {
@@ -61,7 +61,9 @@ applyPolyfills().then(function () {
 
   const components = options.useHtmlComponents ? compatComponentImport || '' : webComponents
 
-  const code = `import { createRouter, initPxTransform } from '@tarojs/taro'
+  const code = `
+import "./public-path"
+import { createRouter, initPxTransform } from '@tarojs/taro'
 import component from ${stringify(join(dirname(this.resourcePath), options.filename))}
 import { ${creator}, window } from '@tarojs/runtime'
 ${importFrameworkStatement}
@@ -86,8 +88,40 @@ config.routes = [
 ]
 ${options.useHtmlComponents ? compatComponentExtra : ''}
 ${execBeforeCreateWebApp || ''}
-var inst = ${creator}(component, ${frameworkArgs})
-createRouter(inst, config, ${importFrameworkName})
+
+let appName = config.appName
+let inst = null
+
+// 非乾坤及母应用才渲染
+if (!window.__POWERED_BY_QIANKUN__ && !window.__QIANKUN_PARENT__ ) {
+  inst = ${creator}(component, ${frameworkArgs})
+  createRouter(inst, config, ${importFrameworkName})
+}
+
+// qiankun 启动
+export async function bootstrap() {
+  console.log("[" + appName + "]" + "微应用启动" );
+}
+
+// 子应用挂载
+export async function mount(props) {
+  console.log("[" + appName + "]" + "微应用挂载" );
+  inst = ${creator}(component, ${frameworkArgs})
+  createRouter(inst, config, ${importFrameworkName})
+  // 设置微应用属性
+  window.__microProps = props
+}
+
+// 子应用卸载
+export async function unmount(props) {
+  console.log("[" + appName + "]" + "微应用卸载" );
+  // const { container } = props;
+  if(inst){
+
+  }
+  inst?inst.onUnMount():null;
+}
+
 initPxTransform({
   designWidth: ${pxTransformConfig.designWidth},
   deviceRatio: ${JSON.stringify(pxTransformConfig.deviceRatio)}

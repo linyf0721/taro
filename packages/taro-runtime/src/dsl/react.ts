@@ -167,7 +167,7 @@ export function createReactApp (App: React.ComponentClass, react: typeof React, 
 
   setReconciler()
 
-  let wrapper: AppWrapper
+  let wrapper: AppWrapper | null = null;
 
   class AppWrapper extends R.Component {
     // run createElement() inside the render function to make sure that owner is right
@@ -215,16 +215,16 @@ export function createReactApp (App: React.ComponentClass, react: typeof React, 
 
   const app: AppInstance = Object.create({
     render (cb: () => void) {
-      wrapper.forceUpdate(cb)
+      wrapper?.forceUpdate(cb)
     },
 
     mount (component: ReactPageComponent, id: string, cb: () => void) {
       const page = connectReactPage(R, id)(component)
-      wrapper.mount(page, id, cb)
+      wrapper?.mount(page, id, cb)
     },
 
     unmount (id: string, cb: () => void) {
-      wrapper.unmount(id, cb)
+      wrapper?.unmount(id, cb)
     }
   }, {
     config: {
@@ -243,7 +243,10 @@ export function createReactApp (App: React.ComponentClass, react: typeof React, 
           ...options
         }
         // eslint-disable-next-line react/no-render-return-value
-        wrapper = ReactDOM.render(R.createElement(AppWrapper), document.getElementById('app'))
+        // wrapper = ReactDOM.render(R.createElement(AppWrapper), document.getElementById('app'))
+
+        this.onMount();
+
         const app = ref.current
 
         // For taroize
@@ -314,6 +317,30 @@ export function createReactApp (App: React.ComponentClass, react: typeof React, 
         if (app != null && isFunction(app.onPageNotFound)) {
           app.onPageNotFound(res)
         }
+      }
+    },
+    // app挂载
+    onMount:{
+      enumerable: true,
+      writable: true,
+      value () {
+        const appName = config.appName
+
+        const appId = appName != null ? 'app' + '_' + appName :'app';
+
+        wrapper = ReactDOM.render(R.createElement(AppWrapper), document.getElementById(appId))
+      }
+    },
+    // app卸载
+    onUnMount:{
+      enumerable: true,
+      writable: true,
+      value () {
+        wrapper = null;
+        const appName = config.appName
+        const appId = appName != null ? 'app' + '_' + appName :'app';
+        let nodeApp = document.getElementById(appId);
+        ReactDOM.unmountComponentAtNode(nodeApp);
       }
     }
   })
