@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "eslint packages/  --ext .js --ext .ts --ext .tsx",
     "docs:rename-version": "cd website && docusaurus-rename-version",
-    "clear-all": "rimraf package-lock.json packages/*/node_modules packages/*/package-lock.json packages/*/yarn.lock",
+    "clear-all": "rimraf package-lock.json packages/*/node_modules packages/*/package-lock.json",
+    "clear-all-all": "rimraf package-lock.json packages/*/node_modules packages/*/package-lock.json packages/*/yarn.lock",
     "bootstrap:ci": "lerna bootstrap --npm-client=yarn",
     "bootstrap:lerna": "lerna bootstrap",
     "bootstrap": "npm-run-all clear-all bootstrap:lerna",
