@@ -8,7 +8,7 @@ import { join } from 'path'
 import { IBuildConfig } from '../utils/types'
 import { printPrerenderSuccess, printPrerenderFail } from '../utils/logHelper'
 
-import type { IAdapter } from '@tarojs/shared'
+import { IAdapter } from '@tarojs/shared'
 
 type Attributes = Record<string, string>
 
@@ -16,7 +16,7 @@ const { JSDOM } = require('jsdom')
 const wx = require('miniprogram-simulate/src/api')
 const micromatch = require('micromatch')
 
-function unquote (str: string) {
+function unquote(str: string) {
   const car = str.charAt(0)
   const end = str.length - 1
   const isQuoteStart = car === '"' || car === "'"
@@ -26,7 +26,7 @@ function unquote (str: string) {
   return str
 }
 
-function getAttrValue (value) {
+function getAttrValue(value) {
   if (typeof value === 'object') {
     try {
       const res = JSON.stringify(value)
@@ -65,7 +65,7 @@ export interface PrerenderConfig {
   transformXML?: (data: MiniData, config: PageConfig, xml: string) => MiniData
 }
 
-export function validatePrerenderPages (pages: string[], config?: PrerenderConfig) {
+export function validatePrerenderPages(pages: string[], config?: PrerenderConfig) {
   let pageConfigs: PageConfig[] = []
 
   if (config == null) {
@@ -115,7 +115,7 @@ export class Prerender {
   private appLoaded = false
   private adapter: IAdapter
 
-  public constructor (buildConfig: IBuildConfig, webpackConfig: webpack.Configuration, stat: webpack.Stats, adapter) {
+  public constructor(buildConfig: IBuildConfig, webpackConfig: webpack.Configuration, stat: webpack.Stats, adapter) {
     this.buildConfig = buildConfig
     this.outputPath = webpackConfig.output!.path!
     this.globalObject = webpackConfig.output!.globalObject!
@@ -132,7 +132,7 @@ export class Prerender {
     })
   }
 
-  public async render (): Promise<void> {
+  public async render(): Promise<void> {
     const pages = validatePrerenderPages(Object.keys(this.stat.entrypoints!), this.prerenderConfig)
 
     if (!this.prerenderConfig.console && !this.appLoaded) {
@@ -143,10 +143,13 @@ export class Prerender {
 
     if (!this.appLoaded) {
       try {
-        this.vm.run(`
+        this.vm.run(
+          `
         const app = require('${this.getRealPath('app')}')
         app.onLaunch()
-      `, this.outputPath)
+      `,
+          this.outputPath
+        )
       } catch (error) {
         printPrerenderFail('app')
         console.error(error)
@@ -168,11 +171,11 @@ export class Prerender {
     }
   }
 
-  private getRealPath (path: string, ext = '.js') {
+  private getRealPath(path: string, ext = '.js') {
     return join(this.outputPath, path + ext).replace(/\\/g, '\\\\')
   }
 
-  private buildSandbox () {
+  private buildSandbox() {
     const Page = (config: unknown) => config
     const App = (config: unknown) => config
     const dom = new JSDOM()
@@ -216,14 +219,23 @@ export class Prerender {
     const children = data[Shortcuts.Childnodes] ?? []
 
     const attrs = omitBy(data, (_, key) => {
-      const internal = [Shortcuts.NodeName, Shortcuts.Childnodes, Shortcuts.Class, Shortcuts.Style, Shortcuts.Text, 'uid']
+      const internal = [
+        Shortcuts.NodeName,
+        Shortcuts.Childnodes,
+        Shortcuts.Class,
+        Shortcuts.Style,
+        Shortcuts.Text,
+        'uid'
+      ]
       return internal.includes(key) || key.startsWith('data-')
     })
 
-    return `<${nodeName}${style ? ` style="${style}"` : ''}${klass ? ` class="${klass}"` : ''} ${this.buildAttributes(attrs as Attributes)}>${children.map(this.renderToXML).join('')}</${nodeName}>`
+    return `<${nodeName}${style ? ` style="${style}"` : ''}${klass ? ` class="${klass}"` : ''} ${this.buildAttributes(
+      attrs as Attributes
+    )}>${children.map(this.renderToXML).join('')}</${nodeName}>`
   }
 
-  private async writeXML (config: PageConfig): Promise<void> {
+  private async writeXML(config: PageConfig): Promise<void> {
     const { path } = config
 
     let data = await this.renderToData(config)
@@ -249,9 +261,9 @@ export class Prerender {
     fs.writeFileSync(templatePath, str, 'utf-8')
   }
 
-  private writeScript (path: string): Promise<void> {
+  private writeScript(path: string): Promise<void> {
     path = this.getRealPath(path)
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const s = `
       if (typeof PRERENDER !== 'undefined') {
         module.exports = global._prerender
@@ -262,17 +274,20 @@ export class Prerender {
     })
   }
 
-  private renderToData ({ path, params }: PageConfig): Promise<MiniData> {
+  private renderToData({ path, params }: PageConfig): Promise<MiniData> {
     return new Promise((resolve, reject) => {
-      const dataReceiver = this.vm.run(`
+      const dataReceiver = this.vm.run(
+        `
         const page = require('${this.getRealPath(path)}')
         page.route = '${path}'
         module.exports = function (cb) {
           page.onLoad(${JSON.stringify(params || {})}, cb)
         }
-      `, this.outputPath)
+      `,
+        this.outputPath
+      )
 
-      dataReceiver((data) => {
+      dataReceiver(data => {
         const domTree = data['root.cn.[0]'] || data['root.cn[0]']
         if (domTree == null) {
           reject(new Error('初始化渲染没有任何数据。'))

@@ -199,6 +199,10 @@ declare namespace Taro {
      * 分包是否是独立分包
      */
     independent?: boolean
+    /**
+     * 分包源码是否node-modules
+     */
+    nodeModules?: boolean
   }
 
   interface Plugins {

@@ -62,5 +62,12 @@
       "name": "route watch",
       "cwd": "${workspaceFolder}/packages/taro-router",
     },
+    {
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "name": "mini runner watch",
+      "cwd": "${workspaceFolder}/packages/taro-mini-runner",
+    },
   ]
 }
