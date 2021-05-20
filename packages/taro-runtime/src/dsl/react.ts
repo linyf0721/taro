@@ -324,9 +324,11 @@ export function createReactApp (App: React.ComponentClass, react: typeof React, 
       enumerable: true,
       writable: true,
       value () {
-        const appName = config.appName
-
-        const appId = appName != null ? 'app' + '_' + appName :'app';
+        let appId = 'app';
+        if(process.env.TARO_ENV && process.env.TARO_ENV == 'h5'){
+          const appName = config.appName
+          appId = appName != null ? 'app' + '_' + appName :'app';
+        }
 
         wrapper = ReactDOM.render(R.createElement(AppWrapper), document.getElementById(appId))
       }
@@ -337,8 +339,11 @@ export function createReactApp (App: React.ComponentClass, react: typeof React, 
       writable: true,
       value () {
         wrapper = null;
-        const appName = config.appName
-        const appId = appName != null ? 'app' + '_' + appName :'app';
+        let appId = 'app';
+        if(process.env.TARO_ENV && process.env.TARO_ENV == 'h5'){
+          const appName = config.appName
+          appId = appName != null ? 'app' + '_' + appName :'app';
+        }
         let nodeApp = document.getElementById(appId);
         ReactDOM.unmountComponentAtNode(nodeApp);
       }
